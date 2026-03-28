@@ -33,13 +33,19 @@ export async function backendFetch(
     );
   }
 
+  if (!API_SECRET) {
+    throw new Error(
+      "[api] API_SECRET env var is not set. Configure it in Vercel environment variables (server-side only)."
+    );
+  }
+
   const url = `${BACKEND_URL}${path}`;
 
   const res = await fetch(url, {
     ...options,
     headers: {
       "Content-Type": "application/json",
-      ...(API_SECRET ? { Authorization: `Bearer ${API_SECRET}` } : {}),
+      Authorization: `Bearer ${API_SECRET}`,
       ...(options.headers ?? {}),
     },
     cache: "no-store",
