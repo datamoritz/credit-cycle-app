@@ -113,10 +113,9 @@ export default function MonthlyClient({ cards, statements }: MonthlyClientProps)
   // Total Statements: sum of each card's most recently closed statement balance at the snapshot date
   const totalStatements = barData.reduce((sum, d) => sum + d.snapshotBalance, 0);
 
+  const snapshotTotalBalance = barData.reduce((sum, d) => sum + d.snapshotBalance, 0);
   const avgUtil =
-    barData.length > 0
-      ? barData.reduce((sum, d) => sum + d.utilPct, 0) / barData.length
-      : 0;
+    totalCardLimit > 0 ? (snapshotTotalBalance / totalCardLimit) * 100 : 0;
 
   const activeDetail = activeBar ? barData.find((d) => d.card.id === activeBar) ?? null : null;
 
