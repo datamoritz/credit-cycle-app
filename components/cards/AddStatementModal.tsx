@@ -38,6 +38,8 @@ export default function AddStatementModal({ cards, onClose, onSuccess }: AddStat
   const [dueDate, setDueDate] = useState("");
   const [balance, setBalance] = useState("");
   const [minPayment, setMinPayment] = useState("");
+  const [paidInFull, setPaidInFull] = useState(false);
+  const [paidDate, setPaidDate] = useState(TODAY);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -75,6 +77,8 @@ export default function AddStatementModal({ cards, onClose, onSuccess }: AddStat
           dueDate,
           statementBalance: parseFloat(balance),
           minimumPayment: parseFloat(minPayment) || 0,
+          paidInFull,
+          paidDate: paidInFull ? paidDate : null,
         }),
       });
       const data = await res.json();
@@ -185,6 +189,30 @@ export default function AddStatementModal({ cards, onClose, onSuccess }: AddStat
                 />
               </div>
             </div>
+          </div>
+
+          {/* Paid in full */}
+          <div className="space-y-2">
+            <label className="flex items-center gap-2.5 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={paidInFull}
+                onChange={(e) => setPaidInFull(e.target.checked)}
+                className="w-4 h-4 rounded border-slate-300 accent-slate-900"
+              />
+              <span className="text-sm font-medium text-slate-700">Already paid in full</span>
+            </label>
+            {paidInFull && (
+              <div>
+                <label className="text-xs font-medium text-slate-500 block mb-1">Date Paid</label>
+                <input
+                  type="date"
+                  value={paidDate}
+                  onChange={(e) => setPaidDate(e.target.value)}
+                  className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-slate-300"
+                />
+              </div>
+            )}
           </div>
 
           {error && <p className="text-xs text-red-600">{error}</p>}
