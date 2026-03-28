@@ -2,11 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { signOut } from "next-auth/react";
 import {
   CreditCard,
   CalendarDays,
   GitBranch,
   TrendingUp,
+  LogOut,
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -63,7 +65,13 @@ export default function Sidebar() {
 
       {/* Footer */}
       <div className="px-5 py-4 border-t border-slate-100">
-        <p className="text-xs text-slate-400">Mar 26, 2026</p>
+        <button
+          onClick={() => signOut({ callbackUrl: "/login" })}
+          className="flex items-center gap-2 text-xs text-slate-400 hover:text-slate-600 transition-colors"
+        >
+          <LogOut className="w-3.5 h-3.5" />
+          Sign out
+        </button>
       </div>
     </aside>
   );
