@@ -35,13 +35,13 @@ export default function CardsClient({ cards, statements }: CardsClientProps) {
     .reduce((sum, s) => sum + s.remainingAmount, 0);
 
   const thisMonthStmts = statements.filter((s) =>
-    s.dueDate.startsWith(CURRENT_MONTH)
+    s.dueDate?.startsWith(CURRENT_MONTH)
   );
   const thisMonthOpen = thisMonthStmts.reduce((sum, s) => sum + s.remainingAmount, 0);
   const thisMonthTotal = thisMonthStmts.reduce((sum, s) => sum + s.statementBalance, 0);
 
   const nextMonthStmts = statements.filter((s) =>
-    s.dueDate.startsWith(NEXT_MONTH)
+    s.dueDate?.startsWith(NEXT_MONTH)
   );
   const nextMonthOpen = nextMonthStmts.reduce((sum, s) => sum + s.remainingAmount, 0);
   const nextMonthTotal = nextMonthStmts.reduce((sum, s) => sum + s.statementBalance, 0);

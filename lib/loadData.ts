@@ -57,5 +57,5 @@ export function getStatementsByDueMonth(
   statements: Statement[],
   month: string // "YYYY-MM"
 ): Statement[] {
-  return statements.filter((s) => s.dueDate.startsWith(month));
+  return statements.filter((s) => s.dueDate?.startsWith(month));
 }
