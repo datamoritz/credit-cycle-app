@@ -5,6 +5,22 @@ import { CreditCard, TimelineEvent } from "@/types";
 import { CARD_COLOR_MAP, TODAY, daysUntil, getDaysLabel } from "@/lib/utils";
 import EventIcon from "@/components/ui/EventIcon";
 
+const ISSUER_SHORT: Record<string, string> = {
+  "American Express": "AMEX",
+  "Bank of America": "BofA",
+  "Capital One": "Cap1",
+  "Wells Fargo": "WF",
+  "Walgreens / Synchrony": "WAG",
+  "U.S. Bank": "USB",
+  "Barclays": "Barc",
+};
+
+function shortenIssuer(issuer: string): string {
+  if (ISSUER_SHORT[issuer]) return ISSUER_SHORT[issuer];
+  // Fallback: first word, max 5 chars
+  return issuer.split(/[\s/]/)[0].slice(0, 5);
+}
+
 const SHORT_LABEL: Record<string, string> = {
   statement_close: "Close",
   payment_due: "Due",
@@ -61,7 +77,10 @@ export default function TimelineView({ events, cards }: TimelineViewProps) {
                 className="w-2 h-2 rounded-full shrink-0"
                 style={{ backgroundColor: colors.hex }}
               />
-              <span className="text-xs font-semibold text-slate-700 truncate">
+              <span className="text-xs font-semibold text-slate-700 truncate sm:hidden">
+                {shortenIssuer(card.issuer)}
+              </span>
+              <span className="text-xs font-semibold text-slate-700 truncate hidden sm:block">
                 {card.issuer}
               </span>
             </div>
