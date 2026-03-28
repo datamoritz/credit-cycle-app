@@ -111,7 +111,13 @@ export default function CardsClient({ cards, statements }: CardsClientProps) {
 
       {/* Mobile header + toggle */}
       <div className="lg:hidden flex items-center justify-between">
-        <p className="text-sm text-slate-500">{cards.length} cards</p>
+        <button
+          onClick={() => setAddOpen(true)}
+          className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-slate-900 rounded-lg hover:bg-slate-800 transition-colors"
+        >
+          <Plus className="w-3.5 h-3.5" />
+          Add Statement
+        </button>
         <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-1">
           <button
             onClick={() => setView("table")}
