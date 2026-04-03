@@ -75,14 +75,12 @@ export default function CardGrid({ cards, statements }: CardGridProps) {
                   <p className="text-sm font-bold text-white leading-none">
                     {card.issuer}
                   </p>
-                  {openStmt && (
-                    <div className="text-right shrink-0">
-                      <p className="text-xs text-white/55 leading-none mb-0.5">Statement</p>
-                      <p className="text-base font-bold text-white tabular-nums leading-none">
-                        {formatCurrency(openStmt.statementBalance)}
-                      </p>
-                    </div>
-                  )}
+                  <div className="text-right shrink-0">
+                    <p className="text-xs text-white/55 leading-none mb-0.5">Statement</p>
+                    <p className="text-base font-bold text-white tabular-nums leading-none">
+                      {formatCurrency(openStmt?.statementBalance ?? 0)}
+                    </p>
+                  </div>
                 </div>
               </div>
 

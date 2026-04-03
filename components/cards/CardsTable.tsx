@@ -119,7 +119,9 @@ export default function CardsTable({ cards, statements, onEdit }: CardsTableProp
                       </button>
                     </div>
                   ) : (
-                    <span className="text-slate-400">—</span>
+                    <span className="font-semibold tabular-nums text-slate-400">
+                      {formatCurrency(0)}
+                    </span>
                   )}
                 </td>
 
