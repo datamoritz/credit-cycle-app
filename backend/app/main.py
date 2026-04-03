@@ -13,7 +13,7 @@ app = FastAPI(title="Credit Cycle Backend")
 
 API_SECRET = os.getenv("API_SECRET", "")
 DATABASE_URL = os.getenv("DATABASE_URL", "")
-PLANNER_API_URL = os.getenv("PLANNER_API_URL", "http://127.0.0.1:8001")
+PLANNER_API_URL = os.getenv("PLANNER_API_URL", "http://host.docker.internal:8001")
 
 
 def verify_auth(authorization: str | None):

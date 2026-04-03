@@ -24,9 +24,12 @@ services:
     environment:
       DATABASE_URL: ${DATABASE_URL}
       API_SECRET: ${API_SECRET}
+      PLANNER_API_URL: ${PLANNER_API_URL:-http://host.docker.internal:8001}
       ENV: ${ENV}
     ports:
       - "127.0.0.1:8000:8000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       - db
     networks:
