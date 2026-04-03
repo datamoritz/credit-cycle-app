@@ -74,7 +74,7 @@ export default function CardGrid({ cards, statements }: CardGridProps) {
                   <div className="text-right shrink-0">
                     <p className="text-xs text-white/55 leading-none mb-0.5">Statement</p>
                     <p className="text-base font-bold text-white tabular-nums leading-none">
-                      {formatCurrency(postedStmt?.statementBalance ?? 0)}
+                      {formatCurrency(openStmt?.remainingAmount ?? 0)}
                     </p>
                   </div>
                 </div>

@@ -101,20 +101,18 @@ export default function CardsTable({ cards, statements, onEdit }: CardsTableProp
 
                 {/* Statement balance + edit */}
                 <td className="py-3 text-center">
-                  {postedStmt ? (
+                  {openStmt ? (
                     <div className="inline-flex items-center gap-1.5">
                       <span className="font-semibold tabular-nums text-slate-900">
-                        {formatCurrency(postedStmt.statementBalance)}
+                        {formatCurrency(openStmt.remainingAmount)}
                       </span>
-                      {openStmt && (
-                        <button
-                          onClick={(e) => { e.preventDefault(); onEdit(openStmt, card); }}
-                          className="text-slate-300 hover:text-slate-500 transition-colors"
-                          title="Record payment"
-                        >
-                          <Pencil className="w-3 h-3" />
-                        </button>
-                      )}
+                      <button
+                        onClick={(e) => { e.preventDefault(); onEdit(openStmt, card); }}
+                        className="text-slate-300 hover:text-slate-500 transition-colors"
+                        title="Record payment"
+                      >
+                        <Pencil className="w-3 h-3" />
+                      </button>
                     </div>
                   ) : (
                     <span className="font-semibold tabular-nums text-slate-400">
