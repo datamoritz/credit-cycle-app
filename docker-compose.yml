@@ -1,0 +1,40 @@
+services:
+  db:
+    image: postgres:16
+    container_name: creditcycle-db
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - creditcycle-net
+
+  backend:
+    build:
+      context: ./backend
+    container_name: creditcycle-backend
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      API_SECRET: ${API_SECRET}
+      ENV: ${ENV}
+    ports:
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      - db
+    networks:
+      - creditcycle-net
+
+volumes:
+  postgres_data:
+
+networks:
+  creditcycle-net:
+    driver: bridge
