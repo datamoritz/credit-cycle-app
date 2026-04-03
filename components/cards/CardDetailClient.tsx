@@ -259,9 +259,7 @@ export default function CardDetailClient({
                       {formatCurrency(stmt.statementBalance)}
                     </td>
                     <td className="px-5 py-3 text-right text-emerald-600 tabular-nums hidden sm:table-cell">
-                      {stmt.paidAmount > 0
-                        ? formatCurrency(stmt.paidAmount)
-                        : "—"}
+                      {formatCurrency(stmt.paidAmount)}
                     </td>
                     <td className="px-5 py-3 text-right tabular-nums">
                       <span
@@ -271,9 +269,7 @@ export default function CardDetailClient({
                             : "text-slate-400"
                         }
                       >
-                        {stmt.remainingAmount > 0
-                          ? formatCurrency(stmt.remainingAmount)
-                          : "—"}
+                        {formatCurrency(stmt.remainingAmount)}
                       </span>
                     </td>
                     <td className="px-5 py-3 hidden md:table-cell">

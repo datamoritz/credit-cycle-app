@@ -36,8 +36,8 @@ export async function PATCH(
         paid_date: body.paidDate,
       }),
     });
-    revalidateTag("cards", "max");
-    revalidateTag("statements", "max");
+    revalidateTag("cards", { expire: 0 });
+    revalidateTag("statements", { expire: 0 });
     return Response.json(data);
   } catch (e) {
     return serverError("Failed to update statement.", e);

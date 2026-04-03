@@ -80,8 +80,8 @@ export async function POST(request: Request) {
         paid_date: paidInFull ? paidDate : null,
       }),
     });
-    revalidateTag("cards", "max");
-    revalidateTag("statements", "max");
+    revalidateTag("cards", { expire: 0 });
+    revalidateTag("statements", { expire: 0 });
     return Response.json(data);
   } catch (e) {
     return serverError("Failed to create statement.", e);
