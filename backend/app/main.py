@@ -52,6 +52,17 @@ def create_planner_task(title: str, task_date: str, notes: str | None = None):
         return json.loads(resp.read().decode())
 
 
+def planner_task_exists(title: str, task_date: str) -> bool:
+    url = f"{PLANNER_API_URL}/tasks?date={task_date}"
+    with urllib_request.urlopen(url, timeout=10) as resp:
+        tasks = json.loads(resp.read().decode())
+
+    return any(
+        task.get("title") == title and str(task.get("task_date")) == task_date
+        for task in tasks
+    )
+
+
 def create_statement_tasks(
     issuer: str,
     due_date: str,
@@ -64,17 +75,22 @@ def create_statement_tasks(
         - timedelta(days=posting_buffer_days)
     ).isoformat()
     issuer_title = issuer.upper()
+    due_title = f"{issuer_title} Due"
+    reduce_title = f"{issuer_title} Reduce"
 
-    create_planner_task(
-        title=f"{issuer_title} Due",
-        task_date=due_date,
-        notes=f"Amount due: {format_currency(due_amount)}",
-    )
-    create_planner_task(
-        title=f"{issuer_title} Reduce",
-        task_date=reduce_by,
-        notes=None,
-    )
+    if not planner_task_exists(due_title, due_date):
+        create_planner_task(
+            title=due_title,
+            task_date=due_date,
+            notes=f"Amount due: {format_currency(due_amount)}",
+        )
+
+    if not planner_task_exists(reduce_title, reduce_by):
+        create_planner_task(
+            title=reduce_title,
+            task_date=reduce_by,
+            notes=None,
+        )
 
 
 class StatementCreate(BaseModel):
