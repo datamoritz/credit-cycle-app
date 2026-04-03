@@ -14,6 +14,7 @@ app = FastAPI(title="Credit Cycle Backend")
 API_SECRET = os.getenv("API_SECRET", "")
 DATABASE_URL = os.getenv("DATABASE_URL", "")
 PLANNER_API_URL = os.getenv("PLANNER_API_URL", "http://planner-backend:8000")
+PLANNER_TAG_ID = int(os.getenv("PLANNER_TAG_ID", "4"))
 
 
 def verify_auth(authorization: str | None):
@@ -38,6 +39,7 @@ def create_planner_task(title: str, task_date: str, notes: str | None = None):
         "location": "backlog",
         "status": "pending",
         "task_date": task_date,
+        "tag_id": PLANNER_TAG_ID,
         "sort_order": 0,
     }
 
