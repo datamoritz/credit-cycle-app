@@ -67,7 +67,12 @@ export async function getCards(): Promise<CreditCard[]> {
   if (isDemoMode()) {
     return DEMO_CARDS;
   }
-  const data = (await backendFetch("/cards")) as { cards: unknown[] };
+  const data = (await backendFetch("/cards", {
+    next: {
+      revalidate: 300,
+      tags: ["cards"],
+    },
+  })) as { cards: unknown[] };
   return data.cards.map(mapCard);
 }
 
@@ -75,7 +80,12 @@ export async function getStatements(): Promise<Statement[]> {
   if (isDemoMode()) {
     return DEMO_STATEMENTS;
   }
-  const data = (await backendFetch("/statements")) as { statements: unknown[] };
+  const data = (await backendFetch("/statements", {
+    next: {
+      revalidate: 300,
+      tags: ["statements"],
+    },
+  })) as { statements: unknown[] };
   return data.statements.map(mapStatement);
 }
 

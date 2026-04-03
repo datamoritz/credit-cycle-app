@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { X } from "lucide-react";
 import { CreditCard } from "@/types";
-import { CARD_COLOR_MAP, TODAY } from "@/lib/utils";
+import { CARD_COLOR_MAP, TODAY, formatLocalDateInput } from "@/lib/utils";
 
 interface AddStatementModalProps {
   cards: CreditCard[];
@@ -29,7 +29,7 @@ function computeDueDate(card: CreditCard, closingDateStr: string): string {
     due = new Date(y, m, Math.min(card.dueDay, din));
   }
 
-  return due.toISOString().split("T")[0];
+  return formatLocalDateInput(due);
 }
 
 export default function AddStatementModal({ cards, onClose, onSuccess }: AddStatementModalProps) {

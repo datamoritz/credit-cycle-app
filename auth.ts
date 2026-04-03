@@ -1,14 +1,18 @@
 import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
 
-const ALLOWED_EMAIL = "moritz.knoedler@gmail.com";
+const ALLOWED_EMAIL = process.env.ALLOWED_EMAIL?.trim().toLowerCase();
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [Google],
   callbacks: {
     signIn({ user }) {
-      // Reject every Google account except the one allowed email
-      return user.email === ALLOWED_EMAIL;
+      if (!ALLOWED_EMAIL) {
+        console.error("[auth] ALLOWED_EMAIL is not configured.");
+        return false;
+      }
+
+      return user.email?.toLowerCase() === ALLOWED_EMAIL;
     },
   },
   session: {

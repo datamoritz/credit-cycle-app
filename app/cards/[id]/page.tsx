@@ -2,8 +2,6 @@ import { notFound } from "next/navigation";
 import CardDetailClient from "@/components/cards/CardDetailClient";
 import { getCards, getStatements, getStatementsByCardId } from "@/lib/loadData";
 
-export const dynamic = "force-dynamic";
-
 interface PageProps {
   params: Promise<{ id: string }>;
 }

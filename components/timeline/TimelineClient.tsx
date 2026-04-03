@@ -6,7 +6,6 @@ import CardShell from "@/components/ui/CardShell";
 import TimelineView from "@/components/timeline/TimelineView";
 import CalendarView from "@/components/timeline/CalendarView";
 import { CreditCard, TimelineEvent } from "@/types";
-import { CARD_COLOR_MAP } from "@/lib/utils";
 
 type ViewMode = "timeline" | "calendar";
 

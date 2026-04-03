@@ -2,6 +2,18 @@ import { CardColor, EventType, ReminderPriority, StatementStatus } from "@/types
 
 // ─── Formatting ──────────────────────────────────────────────────────────────
 
+function pad2(value: number): string {
+  return String(value).padStart(2, "0");
+}
+
+export function formatLocalDateInput(date: Date): string {
+  return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`;
+}
+
+export function formatLocalMonthInput(date: Date): string {
+  return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}`;
+}
+
 export function formatCurrency(amount: number): string {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -38,10 +50,10 @@ export function formatPercent(value: number): string {
 // ─── Date constants ───────────────────────────────────────────────────────────
 
 const _now = new Date();
-export const TODAY = _now.toISOString().slice(0, 10);
-export const CURRENT_MONTH = TODAY.slice(0, 7);
+export const TODAY = formatLocalDateInput(_now);
+export const CURRENT_MONTH = formatLocalMonthInput(_now);
 const _nextMonthDate = new Date(_now.getFullYear(), _now.getMonth() + 1, 1);
-export const NEXT_MONTH = _nextMonthDate.toISOString().slice(0, 7);
+export const NEXT_MONTH = formatLocalMonthInput(_nextMonthDate);
 
 // ─── Date helpers ────────────────────────────────────────────────────────────
 

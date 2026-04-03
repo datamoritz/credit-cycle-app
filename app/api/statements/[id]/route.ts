@@ -1,4 +1,12 @@
+import { revalidateTag } from "next/cache";
 import { isDemoMode, backendFetch } from "@/lib/api";
+import {
+  asNumber,
+  badRequest,
+  isIsoDateString,
+  readJsonObject,
+  serverError,
+} from "@/lib/validation";
 
 export async function PATCH(
   request: Request,
@@ -11,13 +19,27 @@ export async function PATCH(
   }
 
   try {
-    const body = await request.json();
+    const body = await readJsonObject(request);
+    const additionalPayment = asNumber(body.additionalPayment);
+    if (additionalPayment === undefined || additionalPayment <= 0) {
+      return badRequest("`additionalPayment` must be a number greater than 0.");
+    }
+
+    if (!isIsoDateString(body.paidDate)) {
+      return badRequest("`paidDate` must be a valid ISO date (YYYY-MM-DD).");
+    }
+
     const data = await backendFetch(`/statements/${id}`, {
       method: "PATCH",
-      body: JSON.stringify(body),
+      body: JSON.stringify({
+        additionalPayment,
+        paidDate: body.paidDate,
+      }),
     });
+    revalidateTag("cards", "max");
+    revalidateTag("statements", "max");
     return Response.json(data);
   } catch (e) {
-    return Response.json({ ok: false, error: String(e) }, { status: 500 });
+    return serverError("Failed to update statement.", e);
   }
 }

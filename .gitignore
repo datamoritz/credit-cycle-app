@@ -44,3 +44,4 @@ next-env.d.ts
 # private local data — never commit real card/statement data
 /data/private/*.json
 /data/private/*.json.example
+/package-lock 2.json

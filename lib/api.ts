@@ -13,6 +13,13 @@ import "server-only";
 const BACKEND_URL = process.env.BACKEND_URL?.replace(/\/$/, "");
 const API_SECRET = process.env.API_SECRET;
 
+type BackendFetchOptions = RequestInit & {
+  next?: {
+    revalidate?: number;
+    tags?: string[];
+  };
+};
+
 /** True when no backend is configured — app runs on local demo data. */
 export function isDemoMode(): boolean {
   return !BACKEND_URL;
@@ -24,7 +31,7 @@ export function isDemoMode(): boolean {
  */
 export async function backendFetch(
   path: string,
-  options: RequestInit = {}
+  options: BackendFetchOptions = {}
 ): Promise<unknown> {
   if (!BACKEND_URL) {
     throw new Error(
@@ -40,15 +47,22 @@ export async function backendFetch(
   }
 
   const url = `${BACKEND_URL}${path}`;
+  const { headers, next, ...requestInit } = options;
 
   const res = await fetch(url, {
-    ...options,
+    ...requestInit,
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${API_SECRET}`,
-      ...(options.headers ?? {}),
+      ...(headers ?? {}),
     },
-    cache: "no-store",
+    ...(next
+      ? { next }
+      : {
+          next: {
+            revalidate: 300,
+          },
+        }),
   });
 
   if (!res.ok) {
