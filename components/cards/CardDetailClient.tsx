@@ -23,6 +23,7 @@ import {
   CARD_COLOR_MAP,
   STATUS_META,
 } from "@/lib/utils";
+import { getLatestPostedStatement } from "@/lib/statements";
 
 interface CardDetailClientProps {
   card: CreditCard;
@@ -49,12 +50,9 @@ export default function CardDetailClient({
   const [editOpen, setEditOpen] = useState(false);
   const colors = CARD_COLOR_MAP[card.color];
 
-  // Open statement = most recent with remaining > 0
-  const openStmt = statements
-    .filter((s) => s.remainingAmount > 0)
-    .sort((a, b) => b.statementMonth.localeCompare(a.statementMonth))[0];
+  const postedStmt = getLatestPostedStatement(statements, card.id);
 
-  const stmtBalance = openStmt?.statementBalance ?? 0;
+  const stmtBalance = postedStmt?.statementBalance ?? 0;
   const stmtUtil =
     card.creditLimit > 0 ? (stmtBalance / card.creditLimit) * 100 : 0;
 

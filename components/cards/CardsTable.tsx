@@ -10,17 +10,12 @@ import {
   utilizationColor,
   CARD_COLOR_MAP,
 } from "@/lib/utils";
+import { getLatestOpenStatement, getLatestPostedStatement } from "@/lib/statements";
 
 interface CardsTableProps {
   cards: CreditCard[];
   statements: Statement[];
   onEdit: (stmt: Statement, card: CreditCard) => void;
-}
-
-function getOpenStatement(statements: Statement[], cardId: string): Statement | undefined {
-  return statements
-    .filter((s) => s.cardId === cardId && s.remainingAmount > 0)
-    .sort((a, b) => b.statementMonth.localeCompare(a.statementMonth))[0];
 }
 
 function dueDateClass(daysFromNow: number | null): string {
@@ -61,11 +56,12 @@ export default function CardsTable({ cards, statements, onEdit }: CardsTableProp
         <tbody>
           {cards.map((card) => {
             const colors = CARD_COLOR_MAP[card.color];
-            const openStmt = getOpenStatement(statements, card.id);
+            const openStmt = getLatestOpenStatement(statements, card.id);
+            const postedStmt = getLatestPostedStatement(statements, card.id);
 
             const stmtUtil =
-              openStmt && card.creditLimit > 0
-                ? (openStmt.statementBalance / card.creditLimit) * 100
+              postedStmt && card.creditLimit > 0
+                ? (postedStmt.statementBalance / card.creditLimit) * 100
                 : 0;
 
             const barColor = utilizationColor(stmtUtil);
@@ -105,18 +101,20 @@ export default function CardsTable({ cards, statements, onEdit }: CardsTableProp
 
                 {/* Statement balance + edit */}
                 <td className="py-3 text-center">
-                  {openStmt ? (
+                  {postedStmt ? (
                     <div className="inline-flex items-center gap-1.5">
                       <span className="font-semibold tabular-nums text-slate-900">
-                        {formatCurrency(openStmt.statementBalance)}
+                        {formatCurrency(postedStmt.statementBalance)}
                       </span>
-                      <button
-                        onClick={(e) => { e.preventDefault(); onEdit(openStmt, card); }}
-                        className="text-slate-300 hover:text-slate-500 transition-colors"
-                        title="Record payment"
-                      >
-                        <Pencil className="w-3 h-3" />
-                      </button>
+                      {openStmt && (
+                        <button
+                          onClick={(e) => { e.preventDefault(); onEdit(openStmt, card); }}
+                          className="text-slate-300 hover:text-slate-500 transition-colors"
+                          title="Record payment"
+                        >
+                          <Pencil className="w-3 h-3" />
+                        </button>
+                      )}
                     </div>
                   ) : (
                     <span className="font-semibold tabular-nums text-slate-400">

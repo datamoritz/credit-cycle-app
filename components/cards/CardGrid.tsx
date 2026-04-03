@@ -8,16 +8,11 @@ import {
   CARD_COLOR_MAP,
   utilizationColor,
 } from "@/lib/utils";
+import { getLatestOpenStatement, getLatestPostedStatement } from "@/lib/statements";
 
 interface CardGridProps {
   cards: CreditCard[];
   statements: Statement[];
-}
-
-function getOpenStatement(statements: Statement[], cardId: string): Statement | undefined {
-  return statements
-    .filter((s) => s.cardId === cardId && s.remainingAmount > 0)
-    .sort((a, b) => b.statementMonth.localeCompare(a.statementMonth))[0];
 }
 
 function AutoPayBadge({ autoPay }: { autoPay: boolean | undefined }) {
@@ -50,10 +45,11 @@ export default function CardGrid({ cards, statements }: CardGridProps) {
     <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-2 gap-4">
       {cards.map((card) => {
         const colors = CARD_COLOR_MAP[card.color];
-        const openStmt = getOpenStatement(statements, card.id);
+        const openStmt = getLatestOpenStatement(statements, card.id);
+        const postedStmt = getLatestPostedStatement(statements, card.id);
 
-        const stmtUtil = openStmt && card.creditLimit > 0
-          ? (openStmt.statementBalance / card.creditLimit) * 100
+        const stmtUtil = postedStmt && card.creditLimit > 0
+          ? (postedStmt.statementBalance / card.creditLimit) * 100
           : 0;
 
         const dueIn = openStmt ? daysUntil(openStmt.dueDate) : null;
@@ -78,7 +74,7 @@ export default function CardGrid({ cards, statements }: CardGridProps) {
                   <div className="text-right shrink-0">
                     <p className="text-xs text-white/55 leading-none mb-0.5">Statement</p>
                     <p className="text-base font-bold text-white tabular-nums leading-none">
-                      {formatCurrency(openStmt?.statementBalance ?? 0)}
+                      {formatCurrency(postedStmt?.statementBalance ?? 0)}
                     </p>
                   </div>
                 </div>

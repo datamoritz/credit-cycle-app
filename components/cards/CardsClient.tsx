@@ -10,6 +10,7 @@ import AddStatementModal from "@/components/cards/AddStatementModal";
 import EditStatementModal from "@/components/cards/EditStatementModal";
 import { CreditCard, Statement } from "@/types";
 import { formatCurrency, CURRENT_MONTH, NEXT_MONTH } from "@/lib/utils";
+import { getLatestPostedStatement } from "@/lib/statements";
 
 interface CardsClientProps {
   cards: CreditCard[];
@@ -50,11 +51,9 @@ export default function CardsClient({ cards, statements }: CardsClientProps) {
 
   const totalLimit = cards.reduce((sum, c) => sum + c.creditLimit, 0);
 
-  // Avg utilization based on open statement balances (not running balance)
+  // Avg utilization stays tied to the last posted statement until a new one closes.
   const cardUtils = cards.map((c) => {
-    const stmt = statements
-      .filter((s) => s.cardId === c.id && s.remainingAmount > 0)
-      .sort((a, b) => b.statementMonth.localeCompare(a.statementMonth))[0];
+    const stmt = getLatestPostedStatement(statements, c.id);
     return stmt && c.creditLimit > 0
       ? (stmt.statementBalance / c.creditLimit) * 100
       : 0;
