@@ -1,14 +1,19 @@
 import os
+import json
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from fastapi import FastAPI, Header, HTTPException
 from pydantic import BaseModel
 from typing import Optional
+from datetime import datetime, timedelta
+from urllib import request as urllib_request
+from urllib import error as urllib_error
 
 app = FastAPI(title="Credit Cycle Backend")
 
 API_SECRET = os.getenv("API_SECRET", "")
 DATABASE_URL = os.getenv("DATABASE_URL", "")
+PLANNER_API_URL = os.getenv("PLANNER_API_URL", "http://127.0.0.1:8001")
 
 
 def verify_auth(authorization: str | None):
@@ -18,6 +23,58 @@ def verify_auth(authorization: str | None):
 
 def get_conn():
     return psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
+
+
+def format_currency(amount: float) -> str:
+    if float(amount).is_integer():
+        return f"${amount:,.0f}"
+    return f"${amount:,.2f}"
+
+
+def create_planner_task(title: str, task_date: str, notes: str | None = None):
+    payload = {
+        "title": title,
+        "notes": notes,
+        "location": "backlog",
+        "status": "pending",
+        "task_date": task_date,
+        "sort_order": 0,
+    }
+
+    req = urllib_request.Request(
+        f"{PLANNER_API_URL}/tasks",
+        data=json.dumps(payload).encode(),
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+
+    with urllib_request.urlopen(req, timeout=10) as resp:
+        return json.loads(resp.read().decode())
+
+
+def create_statement_tasks(
+    issuer: str,
+    due_date: str,
+    due_amount: float,
+    closing_date: str,
+    posting_buffer_days: int,
+):
+    reduce_by = (
+        datetime.strptime(closing_date, "%Y-%m-%d").date()
+        - timedelta(days=posting_buffer_days)
+    ).isoformat()
+    issuer_title = issuer.upper()
+
+    create_planner_task(
+        title=f"{issuer_title} Due",
+        task_date=due_date,
+        notes=f"Amount due: {format_currency(due_amount)}",
+    )
+    create_planner_task(
+        title=f"{issuer_title} Reduce",
+        task_date=reduce_by,
+        notes=None,
+    )
 
 
 class StatementCreate(BaseModel):
@@ -139,9 +196,32 @@ def create_statement(
         ),
     )
     row = cur.fetchone()
+
+    cur.execute(
+        """
+        SELECT issuer, posting_buffer_days
+        FROM credit_cards
+        WHERE id = %s
+        """,
+        (stmt.cardId,),
+    )
+    card = cur.fetchone()
     conn.commit()
     cur.close()
     conn.close()
+
+    if card:
+        try:
+            create_statement_tasks(
+                issuer=card["issuer"],
+                due_date=stmt.dueDate,
+                due_amount=stmt.statementBalance,
+                closing_date=stmt.closingDate,
+                posting_buffer_days=int(card["posting_buffer_days"] or 0),
+            )
+        except urllib_error.URLError as e:
+            print(f"[planner] Failed to create statement tasks for {statement_id}: {e}")
+
     return {"ok": True, "id": row["id"]}
 
 
