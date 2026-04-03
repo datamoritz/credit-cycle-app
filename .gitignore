@@ -41,6 +41,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+__pycache__/
 
 # private local data — never commit real card/statement data
 /data/private/*.json
