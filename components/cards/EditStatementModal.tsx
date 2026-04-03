@@ -48,7 +48,9 @@ export default function EditStatementModal({
         body: JSON.stringify({ additionalPayment: paymentNum, paidDate }),
       });
       const data = await res.json();
-      if (!data.ok) throw new Error(data.error);
+      if (!data.ok) {
+        throw new Error(data.details ? `${data.error} ${data.details}` : data.error);
+      }
       onSuccess();
     } catch (e) {
       setError(String(e));

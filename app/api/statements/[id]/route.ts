@@ -32,8 +32,8 @@ export async function PATCH(
     const data = await backendFetch(`/statements/${id}`, {
       method: "PATCH",
       body: JSON.stringify({
-        additionalPayment,
-        paidDate: body.paidDate,
+        additional_payment: additionalPayment,
+        paid_date: body.paidDate,
       }),
     });
     revalidateTag("cards", "max");

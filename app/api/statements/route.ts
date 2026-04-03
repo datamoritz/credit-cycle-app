@@ -70,14 +70,14 @@ export async function POST(request: Request) {
     const data = await backendFetch("/statements", {
       method: "POST",
       body: JSON.stringify({
-        cardId: cardId.trim(),
-        statementMonth,
-        closingDate,
-        dueDate,
-        statementBalance: normalizedBalance,
-        minimumPayment: normalizedMinimumPayment,
-        paidInFull,
-        paidDate: paidInFull ? paidDate : null,
+        card_id: cardId.trim(),
+        statement_month: statementMonth,
+        closing_date: closingDate,
+        due_date: dueDate,
+        statement_balance: normalizedBalance,
+        minimum_payment: normalizedMinimumPayment,
+        paid_in_full: paidInFull,
+        paid_date: paidInFull ? paidDate : null,
       }),
     });
     revalidateTag("cards", "max");

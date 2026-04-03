@@ -59,7 +59,7 @@ export async function PATCH(
       if (creditLimit === undefined || creditLimit < 0) {
         return badRequest("`creditLimit` must be a number greater than or equal to 0.");
       }
-      payload.creditLimit = creditLimit;
+      payload.credit_limit = creditLimit;
     }
 
     if ("apr" in body) {
@@ -78,7 +78,7 @@ export async function PATCH(
       ) {
         return badRequest("`autoPay` must be true, false, or omitted.");
       }
-      payload.autoPay = body.autoPay ?? undefined;
+      payload.auto_pay = body.autoPay ?? undefined;
     }
 
     for (const field of ["statementCloseDay", "dueDay"] as const) {
@@ -87,7 +87,9 @@ export async function PATCH(
         if (value === undefined || value < 1 || value > 31) {
           return badRequest(`\`${field}\` must be an integer between 1 and 31.`);
         }
-        payload[field] = value;
+        payload[
+          field === "statementCloseDay" ? "statement_close_day" : "due_day"
+        ] = value;
       }
     }
 
@@ -100,21 +102,23 @@ export async function PATCH(
       ) {
         return badRequest("`postingBufferDays` must be an integer between 0 and 31.");
       }
-      payload.postingBufferDays = postingBufferDays;
+      payload.posting_buffer_days = postingBufferDays;
     }
 
-    for (const field of [
-      "nextCloseDate",
-      "nextDueDate",
-      "recommendedPayByDate",
-      "activeSince",
-    ] as const) {
+    const dateFieldMap = {
+      nextCloseDate: "next_close_date",
+      nextDueDate: "next_due_date",
+      recommendedPayByDate: "recommended_pay_by_date",
+      activeSince: "active_since",
+    } as const;
+
+    for (const [field, backendField] of Object.entries(dateFieldMap)) {
       if (field in body) {
         const value = body[field];
         if (value !== undefined && value !== null && !isIsoDateString(value)) {
           return badRequest(`\`${field}\` must be a valid ISO date (YYYY-MM-DD).`);
         }
-        payload[field] = value ?? undefined;
+        payload[backendField] = value ?? undefined;
       }
     }
 
