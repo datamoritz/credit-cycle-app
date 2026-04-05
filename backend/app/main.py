@@ -36,7 +36,7 @@ def create_planner_task(title: str, task_date: str, notes: str | None = None):
     payload = {
         "title": title,
         "notes": notes,
-        "location": "backlog",
+        "location": "upcoming",
         "status": "pending",
         "task_date": task_date,
         "tag_id": PLANNER_TAG_ID,
