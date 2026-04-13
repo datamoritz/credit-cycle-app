@@ -23,6 +23,7 @@ import {
   CARD_COLOR_MAP,
   STATUS_META,
 } from "@/lib/utils";
+import { getNextCycleDates } from "@/lib/cardCycle";
 import { getLatestOpenStatement, getLatestPostedStatement } from "@/lib/statements";
 
 interface CardDetailClientProps {
@@ -58,9 +59,10 @@ export default function CardDetailClient({
   const stmtUtil =
     card.creditLimit > 0 ? (utilizationBalance / card.creditLimit) * 100 : 0;
 
-  const closeIn = daysUntil(card.nextCloseDate);
-  const dueIn = daysUntil(card.nextDueDate);
-  const payByIn = daysUntil(card.recommendedPayByDate);
+  const nextCycle = getNextCycleDates(card, statements);
+  const closeIn = daysUntil(nextCycle.nextCloseDate);
+  const dueIn = daysUntil(nextCycle.nextDueDate);
+  const payByIn = daysUntil(nextCycle.recommendedPayByDate);
 
   function handleEditSuccess() {
     setEditOpen(false);
@@ -125,7 +127,7 @@ export default function CardDetailClient({
             <span className="text-xs font-medium text-slate-500">Payment Due</span>
           </div>
           <p className={`text-sm font-bold ${dueIn >= 0 && dueIn <= 14 ? "text-red-600" : "text-slate-900"}`}>
-            {formatDate(card.nextDueDate)}
+            {formatDate(nextCycle.nextDueDate)}
           </p>
           <p className="text-xs text-slate-400 mt-0.5">{getDaysLabel(dueIn)}</p>
         </CardShell>
@@ -136,7 +138,7 @@ export default function CardDetailClient({
             <span className="text-xs font-medium text-slate-500">Statement Closes</span>
           </div>
           <p className={`text-sm font-bold ${closeIn >= 0 && closeIn <= 7 ? "text-amber-600" : "text-slate-900"}`}>
-            {formatDate(card.nextCloseDate)}
+            {formatDate(nextCycle.nextCloseDate)}
           </p>
           <p className="text-xs text-slate-400 mt-0.5">{getDaysLabel(closeIn)}</p>
         </CardShell>
@@ -147,7 +149,7 @@ export default function CardDetailClient({
             <span className="text-xs font-medium text-emerald-600">Reduce By</span>
           </div>
           <p className={`text-sm font-bold ${payByIn >= 0 && payByIn <= 5 ? "text-emerald-600" : "text-slate-900"}`}>
-            {formatDate(card.recommendedPayByDate)}
+            {formatDate(nextCycle.recommendedPayByDate)}
           </p>
           <p className="text-xs text-slate-400 mt-0.5">{getDaysLabel(payByIn)}</p>
         </CardShell>

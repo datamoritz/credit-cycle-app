@@ -10,6 +10,7 @@ import {
   utilizationColor,
   CARD_COLOR_MAP,
 } from "@/lib/utils";
+import { getNextCycleDates } from "@/lib/cardCycle";
 import { getLatestOpenStatement, getLatestPostedStatement } from "@/lib/statements";
 
 interface CardsTableProps {
@@ -64,9 +65,10 @@ export default function CardsTable({ cards, statements, onEdit }: CardsTableProp
                 ? (postedStmt.statementBalance / card.creditLimit) * 100
                 : 0;
 
+            const nextCycle = getNextCycleDates(card, statements);
             const barColor = utilizationColor(stmtUtil);
-            const closeIn = daysUntil(card.nextCloseDate);
-            const reduceIn = daysUntil(card.recommendedPayByDate);
+            const closeIn = daysUntil(nextCycle.nextCloseDate);
+            const reduceIn = daysUntil(nextCycle.recommendedPayByDate);
             const dueIn = openStmt ? daysUntil(openStmt.dueDate) : null;
 
             return (
@@ -154,15 +156,15 @@ export default function CardsTable({ cards, statements, onEdit }: CardsTableProp
 
                 {/* Closes */}
                 <td className="py-3 text-center hidden lg:table-cell">
-                  <span className={`tabular-nums ${closeDateClass(closeIn)}`}>
-                    {formatDate(card.nextCloseDate)}
+                    <span className={`tabular-nums ${closeDateClass(closeIn)}`}>
+                    {formatDate(nextCycle.nextCloseDate)}
                   </span>
                 </td>
 
                 {/* Reduce By */}
                 <td className="py-3 text-center">
                   <span className={`tabular-nums ${reduceDateClass(reduceIn)}`}>
-                    {formatDate(card.recommendedPayByDate)}
+                    {formatDate(nextCycle.recommendedPayByDate)}
                   </span>
                 </td>
               </tr>

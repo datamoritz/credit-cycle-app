@@ -8,6 +8,7 @@ import {
   CARD_COLOR_MAP,
   utilizationColor,
 } from "@/lib/utils";
+import { getNextCycleDates } from "@/lib/cardCycle";
 import { getLatestOpenStatement, getLatestPostedStatement } from "@/lib/statements";
 
 interface CardGridProps {
@@ -52,8 +53,9 @@ export default function CardGrid({ cards, statements }: CardGridProps) {
           ? (postedStmt.statementBalance / card.creditLimit) * 100
           : 0;
 
+        const nextCycle = getNextCycleDates(card, statements);
         const dueIn = openStmt ? daysUntil(openStmt.dueDate) : null;
-        const reduceIn = daysUntil(card.recommendedPayByDate);
+        const reduceIn = daysUntil(nextCycle.recommendedPayByDate);
 
         // Urgency: only show sub-label if strictly < 7 days (and non-negative)
         const dueUrgent  = dueIn    !== null && dueIn    >= 0 && dueIn    < 7;
@@ -133,7 +135,7 @@ export default function CardGrid({ cards, statements }: CardGridProps) {
                     <p className="text-xs text-slate-400 mb-1">Closes</p>
                     <div className="h-9">
                       <p className="text-sm font-semibold text-slate-800 leading-tight">
-                        {formatDate(card.nextCloseDate)}
+                        {formatDate(nextCycle.nextCloseDate)}
                       </p>
                     </div>
                   </div>
@@ -143,7 +145,7 @@ export default function CardGrid({ cards, statements }: CardGridProps) {
                     <p className="text-xs text-emerald-600 mb-1">Reduce By</p>
                     <div className="h-9">
                       <p className="text-sm font-semibold text-emerald-600 leading-tight">
-                        {formatDate(card.recommendedPayByDate)}
+                        {formatDate(nextCycle.recommendedPayByDate)}
                       </p>
                       {reduceNear && (
                         <p className="text-xs text-emerald-500 mt-0.5">
