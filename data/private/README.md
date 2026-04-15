@@ -30,7 +30,7 @@ Array of card objects. All fields required unless marked optional.
 | `name` | `string` | Full card product name. e.g. `"Blue Cash Preferred"` |
 | `issuer` | `string` | Bank/issuer name shown in the UI. e.g. `"American Express"` |
 | `last4` | `string` | Last 4 digits of the card number (display only) |
-| `color` | `enum` | UI color theme. One of: `"blue"` `"orange"` `"teal"` `"red"` `"purple"` `"green"` |
+| `color` | `enum` | UI color theme. One of: `"blue"` `"orange"` `"teal"` `"navy"` `"red"` `"purple"` `"green"` |
 | `creditLimit` | `number` | Total credit limit in USD |
 | `currentBalance` | `number` | Current balance as of data entry |
 | `availableCredit` | `number` | `creditLimit − currentBalance` |

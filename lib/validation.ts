@@ -4,6 +4,7 @@ const CARD_COLORS = new Set<CardColor>([
   "blue",
   "orange",
   "teal",
+  "navy",
   "red",
   "purple",
   "green",

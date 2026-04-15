@@ -1,6 +1,13 @@
 // ─── Card ────────────────────────────────────────────────────────────────────
 
-export type CardColor = "blue" | "orange" | "teal" | "red" | "purple" | "green";
+export type CardColor =
+  | "blue"
+  | "orange"
+  | "teal"
+  | "navy"
+  | "red"
+  | "purple"
+  | "green";
 
 export interface CreditCard {
   id: string;

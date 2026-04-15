@@ -86,7 +86,7 @@ export const CARD_COLOR_MAP: Record<
   CardColor,
   { bg: string; text: string; border: string; accent: string; dot: string; hex: string }
 > = {
-  // Amex — middle-dark blue
+  // Original Amex — bright royal blue
   blue: {
     bg: "bg-blue-50",
     text: "text-blue-700",
@@ -104,14 +104,23 @@ export const CARD_COLOR_MAP: Record<
     dot: "bg-orange-500",
     hex: "#f97316",
   },
-  // United — dark navy (darker than blue-700)
+  // Slightly darker blue for secondary Amex card
   teal: {
+    bg: "bg-indigo-50",
+    text: "text-indigo-700",
+    border: "border-indigo-200",
+    accent: "bg-indigo-800",
+    dot: "bg-indigo-800",
+    hex: "#3730a3",
+  },
+  // Chase / United — dark navy
+  navy: {
     bg: "bg-slate-100",
     text: "text-slate-800",
     border: "border-slate-300",
-    accent: "bg-blue-900",
-    dot: "bg-blue-900",
-    hex: "#1e3a8a",
+    accent: "bg-blue-950",
+    dot: "bg-blue-950",
+    hex: "#172554",
   },
   red: {
     bg: "bg-red-50",

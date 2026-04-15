@@ -48,7 +48,7 @@ export const CARDS: CreditCard[] = [
     name: "United Explorer",
     issuer: "Chase",
     last4: "1947",
-    color: "teal",
+    color: "navy",
     creditLimit: 12000,
     currentBalance: 3420,
     availableCredit: 8580,

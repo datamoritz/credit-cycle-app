@@ -14,8 +14,9 @@ interface EditCardModalProps {
 const COLOR_OPTIONS: { value: CardColor; label: string }[] = [
   { value: "orange", label: "Orange" },
   { value: "blue", label: "Blue" },
+  { value: "teal", label: "Deep Blue" },
+  { value: "navy", label: "Navy" },
   { value: "red", label: "Red" },
-  { value: "teal", label: "Navy" },
   { value: "green", label: "Green" },
   { value: "purple", label: "Purple" },
 ];
