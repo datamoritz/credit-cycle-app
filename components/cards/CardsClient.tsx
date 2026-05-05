@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { startTransition, useState } from "react";
 import { useRouter } from "next/navigation";
-import { LayoutGrid, List, Plus } from "lucide-react";
+import { LayoutGrid, List, Plus, RotateCw } from "lucide-react";
 import CardShell from "@/components/ui/CardShell";
 import CardGrid from "@/components/cards/CardGrid";
 import CardsTable from "@/components/cards/CardsTable";
@@ -22,11 +22,22 @@ export default function CardsClient({ cards, statements }: CardsClientProps) {
   const [view, setView] = useState<"table" | "grid">("table");
   const [addOpen, setAddOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<{ stmt: Statement; card: CreditCard } | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
 
   function handleMutationSuccess() {
     setAddOpen(false);
     setEditTarget(null);
     router.refresh();
+  }
+
+  function handleRefresh() {
+    if (refreshing) return;
+
+    setRefreshing(true);
+    startTransition(() => {
+      router.refresh();
+      setTimeout(() => setRefreshing(false), 600);
+    });
   }
 
   // ─── KPIs ─────────────────────────────────────────────────────────────────
@@ -176,8 +187,18 @@ export default function CardsClient({ cards, statements }: CardsClientProps) {
       {/* Cards view */}
       {view === "table" ? (
         <CardShell padding="none">
-          <div className="px-5 py-4 border-b border-slate-100">
+          <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between gap-3">
             <h2 className="text-sm font-semibold text-slate-900">All Cards</h2>
+            <button
+              type="button"
+              onClick={handleRefresh}
+              disabled={refreshing}
+              className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-slate-900 transition-colors disabled:opacity-60"
+              title="Refresh cards"
+            >
+              <RotateCw className={`w-3.5 h-3.5 ${refreshing ? "animate-spin" : ""}`} />
+              Refresh
+            </button>
           </div>
           <div className="px-5 py-4">
             <CardsTable
