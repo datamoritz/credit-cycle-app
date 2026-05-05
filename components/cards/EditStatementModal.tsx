@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { CreditCard, Statement } from "@/types";
 import { formatCurrency, CARD_COLOR_MAP, TODAY } from "@/lib/utils";
@@ -18,15 +18,44 @@ export default function EditStatementModal({
   onClose,
   onSuccess,
 }: EditStatementModalProps) {
+  const [currentStatement, setCurrentStatement] = useState(statement);
   const [payment, setPayment] = useState("");
   const [paidDate, setPaidDate] = useState(TODAY);
   const [submitting, setSubmitting] = useState(false);
+  const [syncing, setSyncing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const colors = CARD_COLOR_MAP[card.color];
-  const remaining = statement.remainingAmount;
+  const remaining = currentStatement.remainingAmount;
   const paymentNum = parseFloat(payment) || 0;
   const newRemaining = Math.max(0, remaining - paymentNum);
+
+  async function syncStatement(): Promise<Statement | null> {
+    setSyncing(true);
+
+    try {
+      const res = await fetch("/api/statements", { cache: "no-store" });
+      const data = await res.json();
+      const latest = Array.isArray(data.statements)
+        ? data.statements.find((item: Statement) => item.id === statement.id) ?? null
+        : null;
+
+      if (latest) {
+        setCurrentStatement(latest);
+      }
+
+      return latest;
+    } catch {
+      return null;
+    } finally {
+      setSyncing(false);
+    }
+  }
+
+  useEffect(() => {
+    setCurrentStatement(statement);
+    void syncStatement();
+  }, [statement.id]);
 
   function handlePaidInFull() {
     setPayment(remaining.toFixed(2));
@@ -42,14 +71,33 @@ export default function EditStatementModal({
     setSubmitting(true);
     setError(null);
     try {
-      const res = await fetch(`/api/statements/${statement.id}`, {
+      const res = await fetch(`/api/statements/${currentStatement.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ additionalPayment: paymentNum, paidDate }),
       });
       const data = await res.json();
       if (!data.ok) {
-        throw new Error(data.details ? `${data.error} ${data.details}` : data.error);
+        const message = data.details ? `${data.error} ${data.details}` : data.error;
+
+        if (message.includes("Payment exceeds statement balance")) {
+          const latest = await syncStatement();
+          setPayment("");
+
+          if (latest && latest.remainingAmount <= 0.005) {
+            throw new Error(
+              "This statement was already paid on the server. The modal has been refreshed."
+            );
+          }
+
+          if (latest) {
+            throw new Error(
+              `This statement changed on the server. Remaining balance is now ${formatCurrency(latest.remainingAmount)}.`
+            );
+          }
+        }
+
+        throw new Error(message);
       }
       onSuccess();
     } catch (e) {
@@ -71,7 +119,7 @@ export default function EditStatementModal({
             />
             <div>
               <h2 className="text-sm font-semibold text-slate-900 leading-tight">{card.issuer}</h2>
-              <p className="text-xs text-slate-400 leading-tight">{statement.statementMonth}</p>
+              <p className="text-xs text-slate-400 leading-tight">{currentStatement.statementMonth}</p>
             </div>
           </div>
           <button onClick={onClose} className="text-slate-400 hover:text-slate-600 transition-colors">
@@ -84,13 +132,13 @@ export default function EditStatementModal({
           <div className="px-4 py-3 text-center">
             <p className="text-xs text-slate-400 mb-0.5">Balance</p>
             <p className="text-sm font-semibold text-slate-900 tabular-nums">
-              {formatCurrency(statement.statementBalance)}
+              {formatCurrency(currentStatement.statementBalance)}
             </p>
           </div>
           <div className="px-4 py-3 text-center">
             <p className="text-xs text-slate-400 mb-0.5">Paid</p>
             <p className="text-sm font-semibold text-slate-900 tabular-nums">
-              {formatCurrency(statement.paidAmount)}
+              {formatCurrency(currentStatement.paidAmount)}
             </p>
           </div>
           <div className="px-4 py-3 text-center">
@@ -168,6 +216,7 @@ export default function EditStatementModal({
               />
             </div>
 
+            {syncing && <p className="text-xs text-slate-400">Syncing latest statement data…</p>}
             {error && <p className="text-xs text-red-600">{error}</p>}
 
             {/* Actions */}
@@ -181,7 +230,7 @@ export default function EditStatementModal({
               </button>
               <button
                 type="submit"
-                disabled={submitting || paymentNum <= 0}
+                disabled={submitting || syncing || paymentNum <= 0}
                 className="flex-1 px-4 py-2 text-sm font-medium text-white bg-slate-900 rounded-lg hover:bg-slate-800 transition-colors disabled:opacity-50"
               >
                 {submitting ? "Saving…" : "Record Payment"}
