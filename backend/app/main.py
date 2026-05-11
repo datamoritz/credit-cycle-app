@@ -1,6 +1,7 @@
 import os
 import json
 import psycopg2
+from psycopg2 import sql
 from psycopg2.extras import RealDictCursor
 from fastapi import FastAPI, Header, HTTPException
 from pydantic import BaseModel
@@ -173,6 +174,93 @@ def get_cards(authorization: str | None = Header(None)):
     cur.close()
     conn.close()
     return {"cards": rows}
+
+
+@app.patch("/cards/{card_id}")
+def update_card(
+    card_id: str,
+    payload: dict,
+    authorization: str | None = Header(None),
+):
+    verify_auth(authorization)
+
+    allowed_fields = {
+        "issuer",
+        "name",
+        "last4",
+        "color",
+        "credit_limit",
+        "apr",
+        "auto_pay",
+        "rewards",
+        "active_since",
+        "statement_close_day",
+        "due_day",
+        "posting_buffer_days",
+        "next_close_date",
+        "next_due_date",
+        "recommended_pay_by_date",
+    }
+    updates = {key: value for key, value in payload.items() if key in allowed_fields}
+
+    if not updates:
+        raise HTTPException(status_code=400, detail="No valid card fields provided")
+
+    conn = get_conn()
+    cur = conn.cursor()
+
+    cur.execute(
+        """
+        SELECT id
+        FROM credit_cards
+        WHERE id = %s
+        """,
+        (card_id,),
+    )
+    existing = cur.fetchone()
+
+    if not existing:
+        cur.close()
+        conn.close()
+        raise HTTPException(status_code=404, detail="Not Found")
+
+    assignments = [
+        sql.SQL("{} = %s").format(sql.Identifier(column))
+        for column in updates.keys()
+    ]
+    values = list(updates.values()) + [card_id]
+
+    query = sql.SQL(
+        """
+        UPDATE credit_cards
+        SET {assignments}
+        WHERE id = %s
+        RETURNING
+            id,
+            name,
+            issuer,
+            last4,
+            color,
+            credit_limit,
+            apr,
+            auto_pay,
+            rewards,
+            active_since,
+            statement_close_day,
+            due_day,
+            posting_buffer_days,
+            next_close_date,
+            next_due_date,
+            recommended_pay_by_date
+        """
+    ).format(assignments=sql.SQL(", ").join(assignments))
+
+    cur.execute(query, values)
+    updated = cur.fetchone()
+    conn.commit()
+    cur.close()
+    conn.close()
+    return {"ok": True, "card": updated}
 
 
 @app.post("/statements", status_code=201)
